@@ -23,10 +23,12 @@ from bs4 import BeautifulSoup as bs
 import pandas as pd
 import time
 
-# 데이터를 추출할 티켓링크 콘서트 랭킹 페이지 주소
-url1 = "https://www.ticketlink.co.kr/ranking?ranking=genre&categoryId=10&category2Id=16&category3Id=16&period=daily"
+# 데이터를 추출할 티켓링크 콘서트 연간 랭킹 페이지 주소
+url1 = "https://www.ticketlink.co.kr/ranking?ranking=genre&categoryId=10&category2Id=14&category3Id=14&period=yearly"
+
 # 위 티켓링크의 데이터를 반환하는 API 엔드포인트 주소
-url2 = "https://mapi.ticketlink.co.kr/mapi/ranking/genre/daily?categoryId=10&categoryId2=14&categoryId3=0&menu=RANKING"
+url2 = "https://mapi.ticketlink.co.kr/mapi/ranking/genre/yearly?categoryId=10&categoryId2=14&categoryId3=0&menu=RANKING"
+
 
 # Selenium 옵션 설정
 options = Options()
@@ -41,6 +43,7 @@ driver.get(url1)
 time.sleep(1)
 # 콘서트 탭 클릭 (XPath로 버튼 선택)
 driver.find_element(By.XPATH, '//*[@id="content"]/section[2]/div[2]/div/ul/li[2]/button').click()
+driver.find_element(By.XPATH, '//*[@id="content"]/section[2]/div[3]/div[3]/div/ul/li[4]/button').click()
 
 # API를 통해 각 콘서트의 상세 페이지 URL 목록을 가져오는 함수
 def 상세화면주소():
@@ -67,12 +70,16 @@ def 데이터생성():
     for i in range(len(links)):
         # 제목, 예매율, 상세 페이지 링크 순
         title = trs[i].find_element(By.CSS_SELECTOR, "span.ranking_product_title").text
+        period = trs[i].find_element(By.CSS_SELECTOR, "span.ranking_product_period").text
+        place = trs[i].find_element(By.CSS_SELECTOR, "span.ranking_product_place").text
         rate = trs[i].find_element(By.CSS_SELECTOR, "span.rate_percent").text
         link = links[i]
 
         # 콘서트 데이터를 딕셔너리에 추가
         items.append({
             "title": title,
+            "period": period,
+            "place": place,
             "rate": rate,
             "link": link
         })
@@ -87,7 +94,7 @@ df["price"] = None
 for j in range(len(df)):
     # 상세 페이지 로드 및 대기
     driver.get(df.loc[j, "link"])
-    time.sleep(2)
+    time.sleep(1)
     # BeautifulSoup으로 HTML 파싱
     detail = bs(driver.page_source, 'html.parser')
     # '할인' 관련 정보를 제외하고 가격 정보 추출
@@ -112,7 +119,7 @@ st.code(code1, language="python")
 st.header("데이터 전처리 과정")
 code2 = '''
 # 열 순서가 제목, 예매율, 가격, 상세 페이지 주소인 콘서트 데이터 csv 파일 생성
-df.to_csv("concert_data.csv", columns=["title", "rate", "price", "link"], encoding="utf-8-sig")
+df.to_csv("concert_data.csv", columns=["title", "period", "place", "rate", "price", "link"], encoding="utf-8-sig")
 '''
 st.code(code2, language="python")
 
