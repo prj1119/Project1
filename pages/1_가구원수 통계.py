@@ -5,7 +5,7 @@ import pandas as pd
 st.set_page_config(
     page_title="1. 가구원수 통계",
     page_icon="💗",
-    # layout="wide",
+    layout="wide",
     # initial_sidebar_state="collapsed"
 )
 
