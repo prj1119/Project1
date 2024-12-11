@@ -8,7 +8,7 @@ from matplotlib import font_manager, rc
 st.set_page_config(
     page_title="5. 티켓 통계",
     page_icon="💗",
-    # layout="wide",
+    layout="wide",
     # initial_sidebar_state="collapsed"
 )
 
@@ -161,7 +161,7 @@ st.header("수집 데이터를 이용한 시각화")
 st.subheader("2024 연간 콘서트 랭킹 TOP50")
 
 # CSV 파일 읽기
-df = pd.read_csv('concert_data_sort.csv')
+df = pd.read_csv('./ticketdata/concert_data_sort.csv')
 
 # 인덱스를 1부터 다시 지정
 df.index = range(1, len(df) + 1)
@@ -188,7 +188,7 @@ df['year_month'] = df['start_date'].dt.to_period('M')
 
 
 # 글꼴 설정
-font_path = "./NanumGothic.ttf"
+font_path = "./ticketdata/NanumGothic.ttf"
 font_prop = font_manager.FontProperties(fname=font_path)
 
 # 몇 월에 콘서트가 가장 많이 열렸는지 그래프
@@ -322,12 +322,13 @@ elif select == "시기별 콘서트 데이터":
     # 필터링된 데이터
     start_date, end_date = sl
     filtered_df = df[(df['start_date'] >= start_date) & (df['start_date'] <= end_date)]
+    filtered_df = filtered_df.drop(columns=['start_date', 'year_month'], errors='ignore')
 
     # 버튼 클릭 시 데이터 필터링
     if st.button("선택한 범위 확인"):
         st.session_state.slider_value = sl
         st.session_state.filtered_data = filtered_df
-
+    
     # 데이터 출력
     if st.session_state.filtered_data.empty:
         st.write("해당 기간에 진행된 콘서트가 없습니다.")
