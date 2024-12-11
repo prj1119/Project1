@@ -4,7 +4,7 @@ import pandas as pd
 
 st.set_page_config(
     page_title="4. 베스트셀러 통계",
-    page_icon="💗",
+    page_icon=":books:",
     layout="wide"
     # initial_sidebar_state="collapsed"
 )
@@ -18,66 +18,67 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 import time
 import pandas as pd
+import plotly.express as px
 
-# #교보 데이터 수집
+#교보 데이터 수집
 
-# options = Options()
-# # options.add_argument('--headless')
-# options.add_argument("--start-maximized")
-# options.add_experimental_option("detach", True)
+options = Options()
+# options.add_argument('--headless')
+options.add_argument("--start-maximized")
+options.add_experimental_option("detach", True)
 
-# driver = webdriver.Chrome(options=options)
-# driver.get("https://store.kyobobook.co.kr/bestseller/total/monthly?page=1&per=50")
-# time.sleep(3)
+driver = webdriver.Chrome(options=options)
+driver.get("https://store.kyobobook.co.kr/bestseller/total/monthly?page=1&per=50")
+time.sleep(3)
 
-# ol = driver.find_element(By.CSS_SELECTOR, "ol.grid.border-t.border-gray-400.grid-cols-1.pt-9")
-# li10_kb = ol.find_elements(By.XPATH, '/html/body/div[1]/main/section/div/div/section/ol[1]/li')
-# li40_kb = ol.find_elements(By.XPATH, '/html/body/div[1]/main/section/div/div/section/ol[2]/li')
-# li_kb = li10_kb + li40_kb
+ol = driver.find_element(By.CSS_SELECTOR, "ol.grid.border-t.border-gray-400.grid-cols-1.pt-9")
+li10_kb = ol.find_elements(By.XPATH, '/html/body/div[1]/main/section/div/div/section/ol[1]/li')
+li40_kb = ol.find_elements(By.XPATH, '/html/body/div[1]/main/section/div/div/section/ol[2]/li')
+li_kb = li10_kb + li40_kb
 
-# links_kb = []
-# titles_kb = []
-# authors_kb = []
-# genres_kb = []
-# for i in range(0,30):
-# #     title = li[i].find_element(By.CSS_SELECTOR, "a.font-weight-medium").text
-#     link_kb = li_kb[i].find_element(By.CSS_SELECTOR, "a.font-weight-medium").get_attribute("href")
-#     links_kb.append(link_kb)
+links_kb = []
+titles_kb = []
+authors_kb = []
+genres_kb = []
+for i in range(0,30):
+#     title = li[i].find_element(By.CSS_SELECTOR, "a.font-weight-medium").text
+    link_kb = li_kb[i].find_element(By.CSS_SELECTOR, "a.font-weight-medium").get_attribute("href")
+    links_kb.append(link_kb)
 
-# for j in links_kb:
-#     driver.get(j)
-#     time.sleep(2)
-#     title_kb = driver.find_element(By.CSS_SELECTOR, "span.prod_title").text
-#     author_kb = driver.find_element(By.CSS_SELECTOR, ".author > a").text
-#     genre_kb = driver.find_elements(By.CSS_SELECTOR, '.btn_sub_depth')[1].text
-#     titles_kb.append(title_kb)
-#     authors_kb.append(author_kb)
-#     genres_kb.append(genre_kb)
-# driver.quit()
+for j in links_kb:
+    driver.get(j)
+    time.sleep(2)
+    title_kb = driver.find_element(By.CSS_SELECTOR, "span.prod_title").text
+    author_kb = driver.find_element(By.CSS_SELECTOR, ".author > a").text
+    genre_kb = driver.find_elements(By.CSS_SELECTOR, '.btn_sub_depth')[1].text
+    titles_kb.append(title_kb)
+    authors_kb.append(author_kb)
+    genres_kb.append(genre_kb)
+driver.quit()
 
-# # print(titles_kb)
-# # print(authors_kb)
-# # print(genres_kb)
-
-# for i in range(len(genres_kb)):
-#     if genres_kb[i] == '소설':
-#         genres_kb[i] = '소설/시/희곡/에세이'
-#     elif genres_kb[i] == '시/에세이':
-#         genres_kb[i] = '소설/시/희곡/에세이'
+# print(titles_kb)
+# print(authors_kb)
 # print(genres_kb)
 
-# bookData_kb = []
-# for k in range(0,30):
-#     bookData_kb.append({
-#             "순위": k+1,
-#             "제목": titles_kb[k],
-#             "작가": authors_kb[k],
-#             "장르": genres_kb[k]
-#     })
-# print(bookData_kb)
+for i in range(len(genres_kb)):
+    if genres_kb[i] == '소설':
+        genres_kb[i] = '소설/시/희곡/에세이'
+    elif genres_kb[i] == '시/에세이':
+        genres_kb[i] = '소설/시/희곡/에세이'
+print(genres_kb)
 
-# books_kb_df = pd.DataFrame(bookData_kb)
-# books_kb_df
+bookData_kb = []
+for k in range(0,30):
+    bookData_kb.append({
+            "순위": k+1,
+            "제목": titles_kb[k],
+            "작가": authors_kb[k],
+            "장르": genres_kb[k]
+    })
+print(bookData_kb)
+
+books_kb_df = pd.DataFrame(bookData_kb)
+books_kb_df
 
 ####################################################################
 
@@ -116,7 +117,8 @@ if res.status_code == 200:
             "순위": rank,
             "제목": title_yes24,
             "작가": author_yes24,
-            "장르": genre_yes24
+            "장르": genre_yes24,
+            "링크": "https://www.yes24.com" + href
         })
                    
         rank += 1
@@ -126,6 +128,7 @@ books_yes24_df.set_index("순위", inplace=True)
 
 # 1. 수집 코드
 st.header("수집 코드1")
+
 code1 = '''
 import requests as req
 from bs4 import BeautifulSoup as bs
@@ -234,7 +237,7 @@ if res.status_code == 200:
             "순위": rank,
             "제목": title_yes24,
             "작가": author_yes24,
-            "장르": genre_yes24
+            "장르": genre_yes24,
             "링크": "https://www.yes24.com" + href
         })
                    
@@ -276,17 +279,16 @@ st.code(code3, language="python")
 # 3. 수집 데이터를 이용한 시각화
 st.header("수집 데이터를 이용한 시각화")
 
-data = books_yes24_df
-
 col1, col2 = st.columns(2)
 
 with col1:
     st.subheader("교보문고 순위 리스트")
-    st.subheader("준비중")
+    st.subheader(books_kb_df)
 
 with col2:
     st.subheader("yes24 순위 리스트")
-    st.table(books_yes24_df)
+    st.table(books_yes24_df[['제목', '작가', '장르']])
+
 
                        
 books_df = pd.DataFrame(bookData_yes24)
@@ -296,7 +298,7 @@ books_df.set_index("순위", inplace=True)
 st.title("책 정보 검색")
 
 # 사용자 입력 선택
-option = st.selectbox("검색 옵션을 선택하세요:", ["순위로 검색", "책 제목으로 검색", "작가로 검색"])
+option = st.selectbox("검색 옵션을 선택하세요:", ["순위로 검색(1 ~ 30)", "책 제목으로 검색", "작가로 검색"])
 
 if option == "순위로 검색":
     rank = st.number_input("순위를 입력하세요:", min_value=1, max_value=len(books_df), step=1)
@@ -344,3 +346,17 @@ elif option == "작가로 검색":
                 st.write(f"[책 링크 보기]({book['링크']})")
         else:
             st.write("해당 작가의 책 정보를 찾을 수 없습니다.")
+
+
+
+####################################################################
+pieChart_yes24 = px.pie(
+                names=genrePer_yes24.index,
+                values=genrePer_yes24.values,
+                title="yes24 베스트셀러 장르별 비율",
+                labels={'value': '백분율', 'labels': '장르'}
+)
+
+# 스트림릿에서 파이차트 표시
+st.plotly_chart(pieChart_yes24)
+####################################################################
