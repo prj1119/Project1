@@ -300,7 +300,7 @@ global font_path
 global font_prop
 
 # 한글 폰트 설정 (예: 'NanumGothic' 폰트 사용)
-font_path = "./NanumGothic.ttf"  # 시스템에 따라 경로가 다를 수 있음
+font_path = "./pages/NanumGothic.ttf"  # 시스템에 따라 경로가 다를 수 있음
 font_prop = font_manager.FontProperties(fname=font_path)
 
 temp_folder = r'C:\IDE\works\pj_temp'
@@ -308,7 +308,7 @@ temp_folder = r'C:\IDE\works\pj_temp'
 def 그래프시각화시작():    
     
     # 시트 가져오기
-    fileName = r'./읍면동_가구형태별_DATA.xlsx'
+    fileName = r'./pages/읍면동_가구형태별_DATA.xlsx'
     wb = openpyxl.load_workbook(fileName)
     sheet_names = wb.sheetnames
 
