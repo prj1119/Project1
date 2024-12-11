@@ -5,7 +5,7 @@ import pandas as pd
 st.set_page_config(
     page_title="4. 베스트셀러 통계",
     page_icon="💗",
-    # layout="wide",
+    layout="wide"
     # initial_sidebar_state="collapsed"
 )
 
@@ -19,7 +19,7 @@ from selenium.webdriver.common.by import By
 import time
 import pandas as pd
 
-#교보 데이터 수집
+# #교보 데이터 수집
 
 # options = Options()
 # # options.add_argument('--headless')
@@ -199,9 +199,7 @@ st.code(code1, language="python")
 
 st.header("수집 코드2")
 code2 = '''
-import requests as req
-from bs4 import BeautifulSoup as bs
-import pandas as pd
+#yes24 데이터 수집
 
 url = "https://www.yes24.com/Product/Category/MonthWeekBestSeller?categoryNumber=001&pageNumber=1&pageSize=40&type=month&saleYear=2024&saleMonth=11"
 res = req.get(url)
@@ -237,6 +235,7 @@ if res.status_code == 200:
             "제목": title_yes24,
             "작가": author_yes24,
             "장르": genre_yes24
+            "링크": "https://www.yes24.com" + href
         })
                    
         rank += 1
@@ -249,15 +248,28 @@ st.code(code2, language="python")
 # 2. 데이터 전처리 과정
 st.header("데이터 전처리 과정")
 code3 = '''
+##########################################################################################
 titles_yes24 = books_yes24_df['제목'].tolist()
+list_yes24 = list(set(titles_yes24)-set(titles_kb))
+list_kb = list(set(titles_kb)-set(titles_yes24))
 
-print(set(titles_yes24)-set(titles_kb))
-print(len(set(titles_yes24)-set(titles_kb)))
-print(set(titles_kb)-set(titles_yes24))
-print(len(set(titles_kb)-set(titles_yes24)))
+list_yes24_df = books_yes24_df[books_yes24_df['장르'].isin['순위','제목','작가','장르']]
+list_kb_df = books_kb_df[books_kb_df['장르'].isin['순위','제목','작가','장르']]
+
+genrePer_yes24 = books_yes24_df['장르'].value_counts(normalize=True) * 100
+genrePer_kb = books_kb_df['장르'].value_counts(normalize=True) * 100
+
+
+# print(set(titles_yes24)-set(titles_kb))
+# print(len(set(titles_yes24)-set(titles_kb)))
+# print(set(titles_kb)-set(titles_yes24))
+# print(len(set(titles_kb)-set(titles_yes24)))
 
 # books_kb_df.to_csv('book_kb_df.csv', index = False, encoding='utf-8-sig')
 # books_yes24_df.to_csv('books_yes24_df.csv', index=False, encoding='utf-8-sig')
+
+books_yes24_df.set_index("순위", inplace=True)
+#########################################################################################
 '''
 st.code(code3, language="python")
 
@@ -274,6 +286,61 @@ with col1:
 
 with col2:
     st.subheader("yes24 순위 리스트")
-    st.table(data)
+    st.table(books_yes24_df)
 
+                       
+books_df = pd.DataFrame(bookData_yes24)
+books_df.set_index("순위", inplace=True)
 
+# Streamlit 제목
+st.title("책 정보 검색")
+
+# 사용자 입력 선택
+option = st.selectbox("검색 옵션을 선택하세요:", ["순위로 검색", "책 제목으로 검색", "작가로 검색"])
+
+if option == "순위로 검색":
+    rank = st.number_input("순위를 입력하세요:", min_value=1, max_value=len(books_df), step=1)
+    
+    if st.button("검색"):
+        if rank in books_df.index:
+            book = books_df.loc[rank]
+            st.write(f"### 순위 {rank} 정보")
+            st.write(f"**제목:** {book['제목']}")
+            st.write(f"**작가:** {book['작가']}")
+            st.write(f"**장르:** {book['장르']}")
+            st.write(f"[책 링크 보기]({book['링크']})")
+        else:
+            st.write("해당 순위의 책 정보를 찾을 수 없습니다.")
+
+elif option == "책 제목으로 검색":
+    title = st.text_input("책 제목을 입력하세요:")
+    
+    if st.button("검색"):
+        result = books_df[books_df['제목'].str.contains(title, case=False)]
+        if not result.empty:
+            st.write(f"### '{title}'에 대한 검색 결과")
+            for idx, book in result.iterrows():
+                st.write(f"**순위:** {idx}")
+                st.write(f"**제목:** {book['제목']}")
+                st.write(f"**작가:** {book['작가']}")
+                st.write(f"**장르:** {book['장르']}")
+                st.write(f"[책 링크 보기]({book['링크']})")
+        else:
+            st.write("해당 제목의 책 정보를 찾을 수 없습니다.")
+
+elif option == "작가로 검색":
+    author = st.text_input("작가 이름을 입력하세요:")
+    
+    if st.button("검색"):
+        result = books_df[books_df['작가'].str.contains(author, case=False)]
+        if not result.empty:
+            st.write(f"### '{author}' 작가의 책 검색 결과")
+            st.write(f"총 {len(result)}건의 책이 순위 내에 있습니다.")
+            for idx, book in result.iterrows():
+                st.write(f"**순위:** {idx}")
+                st.write(f"**제목:** {book['제목']}")
+                st.write(f"**작가:** {book['작가']}")
+                st.write(f"**장르:** {book['장르']}")
+                st.write(f"[책 링크 보기]({book['링크']})")
+        else:
+            st.write("해당 작가의 책 정보를 찾을 수 없습니다.")
