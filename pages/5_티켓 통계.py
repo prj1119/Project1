@@ -1,5 +1,6 @@
 import streamlit as st
-import numpy as np
+import ast
+import datetime as dt
 import pandas as pd
 
 st.set_page_config(
@@ -107,21 +108,92 @@ for j in range(len(df)):
     price = [int(price.text.replace(",", "").replace("원", "").strip()) for price in price_elements]
     # 데이터프레임에 가격 정보 추가
     df.at[j, "price"] = price
+
+# 열 순서가 제목, 예매율, 가격, 상세 페이지 주소인 콘서트 데이터 csv 파일 생성
+df.to_csv("concert_data.csv", columns=["title", "period", "place", "rate", "price", "link"], encoding="utf-8-sig")
 '''
+with st.expander("데이터 수집 코드"):
+    st.code(code1, language="python")
 
-st.code(code1, language="python")
-# btn = st.button("코드 확인")
-
-# if btn:
-#     st.code(code1, language="python")
 
 # 2. 데이터 전처리 과정
 st.header("데이터 전처리 과정")
 code2 = '''
-# 열 순서가 제목, 예매율, 가격, 상세 페이지 주소인 콘서트 데이터 csv 파일 생성
-df.to_csv("concert_data.csv", columns=["title", "period", "place", "rate", "price", "link"], encoding="utf-8-sig")
+import pandas as pd
+
+# CSV 파일 읽기
+df = pd.read_csv('concert_data.csv')
+
+# 'place' 열에서 '해당 없음'이 아닌 데이터만 필터링
+df = df[df['place'] != '해당 없음']
+
+# 'period' 열에서 시작 날짜만 추출
+df['start_date'] = df['period'].str.split(' - ').str[0]
+
+# 시작 날짜를 datetime 형식으로 변환
+df['start_date'] = pd.to_datetime(df['start_date'], format='%Y.%m.%d')
+
+# 시작 날짜 기준으로 정렬
+df_sorted = df.sort_values(by='start_date', ascending=True)
+
+# 정렬된 데이터프레임에서 정렬에 사용한 열을 제거
+df_sorted = df_sorted.drop(columns=['start_date'])
+
+# 정렬된 데이터프레임을 새로운 CSV 파일로 저장
+df_sorted.to_csv('concert_data_sort.csv', index=False, encoding="utf-8-sig")
+
+# 정렬된 데이터프레임에 남은 행 개수 출력
+filter = len(df_sorted)
+print(f"최종 콘서트 개수: {filter}")
 '''
-st.code(code2, language="python")
+with st.expander("데이터 전처리 과정"):
+    st.code(code2, language="python")
+
 
 # 3. 수집 데이터를 이용한 시각화
 st.header("수집 데이터를 이용한 시각화")
+
+# 데이터프레임 시각화
+st.subheader("2024 연간 콘서트 랭킹 TOP50")
+
+# CSV 파일 읽기
+df = pd.read_csv('concert_data.csv')
+
+# 'place' 열에서 '해당 없음'이 아닌 데이터만 필터링
+filtered_df = df[df['place'] != '해당 없음']
+
+# 'Unnamed: 0' 열 제거
+if 'Unnamed: 0' in filtered_df.columns:
+    filtered_df = filtered_df.drop(columns=['Unnamed: 0'])
+
+# 인덱스를 1부터 다시 지정
+filtered_df.index = range(1, len(filtered_df) + 1)
+
+# 'price' 열의 중복 제거 및 정렬 함수 정의
+def 중복제거(price_list):
+    # 문자열 형태 리스트를 실제 리스트로 변환
+    if isinstance(price_list, str):
+        price_list = ast.literal_eval(price_list)
+    # 중복 제거, 내림차순 정렬
+    return sorted(set(price_list), reverse=True)
+
+# 'price' 열의 중복 요소 제거
+if 'price' in filtered_df.columns:
+    filtered_df['price'] = filtered_df['price'].apply(중복제거)
+
+# Streamlit 화면에 표시
+with st.expander("MD 구매 등 콘서트가 아닌 항목 필터링"):
+    st.dataframe(filtered_df)
+
+
+# 몇 월에 콘서트가 가장 많이 열렸는지 그래프
+# 어디에서 콘서트가 가장 많이 열렸는지 순위표
+# 최고가와 최저가 그래프
+# 시기별 콘서트 출력 슬라이드
+
+
+select = st.selectbox(
+    label = "한식 메뉴",
+    options = ("김치찌개", "된장찌개", "불백"),
+    index = 0
+)
