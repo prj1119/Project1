@@ -5,65 +5,33 @@ import pandas as pd
 st.set_page_config(
     page_title="3. 암환자수 통계",
     page_icon="💗",
-    # layout="wide",
+    layout="wide",
     # initial_sidebar_state="collapsed"
 )
 
-st.title("암환자수 통계")
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-import pandas as pd
-import streamlit as st
+if 'slider_value' not in st.session_state:
+    st.session_state.slider_value = (2017, 2022)
 
-url = "https://www.index.go.kr/unity/potal/main/EachDtlPageDetail.do?idx_cd=2770"
-
-options = Options()
-options.add_argument('--headless')
-# options.add_argument("--start-maximized") # 전체 화면 창으로 설정
-# options.add_experimental_option("detach", True) # 창이 자동 닫기 무효화
-
-driver = webdriver.Chrome(options=options)
-driver.get(url)
-
-step1 = WebDriverWait(driver, 10).until(
-    EC.frame_to_be_available_and_switch_to_it(
-        (By.CSS_SELECTOR, "iframe#showStblGams")
-    )
-)
-
-ths = driver.find_elements(By.CSS_SELECTOR, "table#t_Table_277002 > thead > tr#trHeader277002_1 > th")
-trs = driver.find_elements(By.CSS_SELECTOR, "table#t_Table_277002 > tbody > tr")
-
-#열생성
-def makeCol():
-    cols = []
-    del ths[0]
-    for col in ths:
-        cols.append(col.text)
-    return cols
-
-
+if 'line_chart_value' not in st.session_state:
+    st.session_state.line_chart_value = pd.DataFrame([])
 
 def makeData():
-    data = []
-    index = []
-    for i in range(len(trs)):
-        if i % 2 != 0:
-            continue
-        arr = []
-        for td in trs[i].find_elements(By.CSS_SELECTOR, "td"):
-            arr.append(int(td.text.replace(",","")))
-        #data.append(arr)
-        data.append(arr)
-        index.append(trs[i].find_elements(By.CSS_SELECTOR, "th")[0].text)
-    return pd.DataFrame(data=data, index=index, columns=makeCol())
+    url = "https://www.index.go.kr/unity/potal/eNara/sub/showStblGams3.do?stts_cd=277002&idx_cd=2770&freq=Y&period=N"
+    df = pd.read_html(url)[0].drop(0)
+    df = df.drop('Unnamed: 1', axis=1)
+    data1 = df.iloc[::2,:].set_index(keys="Unnamed: 0")
+    st.session_state.line_chart_value = data1.filter(items=makeCol(data1)).transpose()
+
+def makeCol(data1):
+    point = []
+    target = st.session_state.slider_value
+    for i in range(target[0], target[1]+1):
+        point.append(str(i))
+    if len(point) == 0:
+        point = list(data1.columns)
+    return point
 
 
-df = makeData()
-df = df.transpose()
 
 
 # 접속한 아이프레임에서 돌아오기 
@@ -74,66 +42,61 @@ df = df.transpose()
 # 1. 수집 코드
 st.header("수집 코드")
 code1 = '''
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
 import pandas as pd
 import streamlit as st
 
-url = "https://www.index.go.kr/unity/potal/main/EachDtlPageDetail.do?idx_cd=2770"
-
-options = Options()
-options.add_argument('--headless')
-# options.add_argument("--start-maximized") # 전체 화면 창으로 설정
-# options.add_experimental_option("detach", True) # 창이 자동 닫기 무효화
-
-driver = webdriver.Chrome(options=options)
-driver.get(url)
-
-step1 = WebDriverWait(driver, 10).until(
-    EC.frame_to_be_available_and_switch_to_it(
-        (By.CSS_SELECTOR, "iframe#showStblGams")
-    )
+st.set_page_config(
+    page_title="3. 암환자수 통계",
+    page_icon="💗",
+    layout="wide",
+    # initial_sidebar_state="collapsed"
 )
 
-ths = driver.find_elements(By.CSS_SELECTOR, "table#t_Table_277002 > thead > tr#trHeader277002_1 > th")
-trs = driver.find_elements(By.CSS_SELECTOR, "table#t_Table_277002 > tbody > tr")
+if 'slider_value' not in st.session_state:
+    st.session_state.slider_value = (2017, 2022)
 
-#열생성
-def makeCol():
-    cols = []
-    del ths[0]
-    for col in ths:
-        cols.append(col.text)
-    return cols
-
-
+if 'line_chart_value' not in st.session_state:
+    st.session_state.line_chart_value = pd.DataFrame([])
 
 def makeData():
-    data = []
-    index = []
-    for i in range(len(trs)):
-        if i % 2 != 0:
-            continue
-        arr = []
-        for td in trs[i].find_elements(By.CSS_SELECTOR, "td"):
-            arr.append(int(td.text.replace(",","")))
-        #data.append(arr)
-        data.append(arr)
-        index.append(trs[i].find_elements(By.CSS_SELECTOR, "th")[0].text)
-    return pd.DataFrame(data=data, index=index, columns=makeCol())
+    url = "https://www.index.go.kr/unity/potal/eNara/sub/showStblGams3.do?stts_cd=277002&idx_cd=2770&freq=Y&period=N"
+    df = pd.read_html(url)[0].drop(0)
+    df = df.drop('Unnamed: 1', axis=1)
+    data1 = df.iloc[::2,:].set_index(keys="Unnamed: 0")
+    st.session_state.line_chart_value = data1.filter(items=makeCol(data1)).transpose()
 
 
-df = makeData()
 '''
 st.code(code1, language="python")
 
 # 2. 데이터 전처리 과정
 st.header("데이터 전처리 과정")
 code2 = '''
-df = df.transpose()
+
+def makeCol(data1):
+    point = []
+    target = st.session_state.slider_value
+    for i in range(target[0], target[1]+1):
+        point.append(str(i))
+    if len(point) == 0:
+        point = list(data1.columns)
+    return point
+
+sl = st.slider(
+    label="년도 범위를 변경하세요", min_value=1989, max_value=2023, value=st.session_state.slider_value, step=1
+)
+
+# st.write(st.session_state.slider_value)
+if st.button("선택한 범위 확인"):
+    st.session_state.slider_value = sl
+    makeData()
+
+if st.session_state.line_chart_value.empty:
+    st.markdown("<h4 style='text-align: center;'>출력할 내용이 없습니다.</h4>", unsafe_allow_html=True)
+else:
+    st.dataframe(st.session_state.line_chart_value, use_container_width=True)
+    st.line_chart(st.session_state.line_chart_value)
+
 '''
 st.code(code2, language="python")
 
@@ -141,10 +104,17 @@ st.code(code2, language="python")
 st.header("수집 데이터를 이용한 시각화")
 
 sl = st.slider(
-    "여기라벨내용",1989.0,2023.0,(2000.0,2020.0),step=1.0
+    label="년도 범위를 변경하세요", min_value=1989, max_value=2023, value=st.session_state.slider_value, step=1
 )
 
-st.write(sl)
-#연도 시작~ 끝, 보일위치
+# st.write(st.session_state.slider_value)
+if st.button("선택한 범위 확인"):
+    st.session_state.slider_value = sl
+    makeData()
 
-st.line_chart(df)
+
+if st.session_state.line_chart_value.empty:
+    st.markdown("<h4 style='text-align: center;'>출력할 내용이 없습니다.</h4>", unsafe_allow_html=True)
+else:
+    st.dataframe(st.session_state.line_chart_value, use_container_width=True)
+    st.line_chart(st.session_state.line_chart_value)
