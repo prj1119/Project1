@@ -188,7 +188,7 @@ df['year_month'] = df['start_date'].dt.to_period('M')
 
 
 # 글꼴 설정
-font_path = "./ticketdata/NanumGothic.ttf"
+font_path = "./NanumGothic.ttf"
 font_prop = font_manager.FontProperties(fname=font_path)
 
 # 몇 월에 콘서트가 가장 많이 열렸는지 그래프
