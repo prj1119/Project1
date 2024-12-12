@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
-
+import altair as alt
 from bs4 import BeautifulSoup as bs
 from requests import get
 import json
@@ -138,6 +138,25 @@ top_20_df5 = top_20_df5.style.hide(axis='index')
 top_20_df6 = top_20_df6.style.hide(axis='index')
 top_20_df7 = top_20_df7.style.hide(axis='index')
 top_20_df8 = top_20_df8.style.hide(axis='index')
+
+### 장르별 제목 가로로 출력 하기로 위한 작업
+
+# DataFrame을 '장르'와 '좋아요 총합'으로 변환
+dfgood.reset_index(inplace=True)
+dfgood.columns = ['장르', '좋아요 총합']
+
+# Altair로 바 차트를 만들고 x축 레이블을 가로로 표시
+chart = alt.Chart(dfgood).mark_bar().encode(
+    x=alt.X('장르:N', title='장르', sort=None),  # '장르'를 x축에 표시
+    y='좋아요 총합:Q',  # '좋아요 총합'을 y축에 표시
+).properties(
+    width=600,  # 차트의 너비
+    height=400   # 차트의 높이
+).configure_axis(
+    labelAngle=0  # x축 레이블을 수평으로 설정
+)
+
+### 장르별 제목 가로로 출력 하기로 위한 작업
 
 st.set_page_config(
     page_title="음악사이트 장르별 인기 통계",
@@ -364,7 +383,10 @@ with st.expander("팝송"):
 with st.expander("J-POP"):
     st.table(top_20_df8)
     st.audio('audio\유우리 - 베텔기우스(BETELGEUSE).mp3')
+    
 
+
+# Streamlit에서 차트 확장 표시
 with st.expander("각 장르별 좋아요 총합"):
-
-    st.bar_chart(dfgood)
+    st.altair_chart(chart, use_container_width=True)
+    # Streamlit에서 차트 확장 표시
