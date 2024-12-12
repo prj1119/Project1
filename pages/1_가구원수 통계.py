@@ -9,6 +9,7 @@ st.set_page_config(
     # initial_sidebar_state="collapsed"
 )
 
+ 
 st.title("가구원수 통계")
 
 # 1. 수집 코드
@@ -216,7 +217,8 @@ def 데이터전처리():
 
 
 '''
-st.code(code1, language="python")
+with st.expander("데이터 수집 코드"):
+    st.code(code1, language="python")
 
 # 2. 데이터 전처리 과정
 st.header("데이터 전처리 과정")
@@ -284,7 +286,8 @@ def 데이터전처리시작():
 
 
 '''
-st.code(code2, language="python")
+with st.expander("데이터 전처리 과정"):
+    st.code(code2, language="python")
 
 # 3. 수집 데이터를 이용한 시각화
 st.header("수집 데이터를 이용한 시각화")
