@@ -27,7 +27,7 @@ with st.expander("시연 영상 보기"):
 
 st.subheader("4. 베스트셀러 비교")
 with st.expander("시연 영상 보기"):
-    st.video("./mp4/team5.mp4")
+    st.video("./mp4/team4.mp4")
     st.page_link(page="./pages/4_베스트셀러 통계.py", label="[그래프 보기]", icon="🔗")
 
 st.subheader("5. 티켓 비교 그래프")
@@ -37,5 +37,5 @@ with st.expander("시연 영상 보기"):
 
 st.subheader("6. 음악사이트 장르별인기 차트 그래프")
 with st.expander("시연 영상 보기"):
-    st.video("./mp4/team5.mp4")
+    st.video("./mp4/team6.mp4")
     st.page_link(page="./pages/6_음악사이트 장르별 인기 통계.py", label="[차트, 그래프 보기]", icon="🔗")
