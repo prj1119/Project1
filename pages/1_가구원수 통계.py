@@ -9,7 +9,7 @@ st.set_page_config(
     # initial_sidebar_state="collapsed"
 )
 
-
+ 
 st.title("가구원수 통계")
 
 # 1. 수집 코드
