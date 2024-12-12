@@ -58,7 +58,8 @@ def getKbData(size):
                 "순위": k+1,
                 "제목": titles_kb[k],
                 "작가": authors_kb[k],
-                "장르": genres_kb[k]
+                "장르": genres_kb[k],
+                "링크": links_kb[k]
         })
 
     print("Step Stop >>> Data End!!")
