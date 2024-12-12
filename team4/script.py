@@ -107,24 +107,47 @@ books_yes24_df
 '''
 
 code3 = '''
-titles_yes24 = books_yes24_df['제목'].tolist()
-list_yes24 = list(set(titles_yes24)-set(titles_kb))
-list_kb = list(set(titles_kb)-set(titles_yes24))
+#교보 데이터 전처리 코드
+    print("Step3 Start!!")
+    for i in range(len(genres_kb)):
+        if genres_kb[i] == '소설':
+            genres_kb[i] = '소설/시/희곡/에세이'
+        elif genres_kb[i] == '시/에세이':
+            genres_kb[i] = '소설/시/희곡/에세이'
 
-list_yes24_df = books_yes24_df[books_yes24_df['장르'].isin['순위','제목','작가','장르']]
-list_kb_df = books_kb_df[books_kb_df['장르'].isin['순위','제목','작가','장르']]
+    print("Step4 Start!!")
+    bookData_kb = []
+    for k in range(0,size):
+        bookData_kb.append({
+                "순위": k+1,
+                "제목": titles_kb[k],
+                "작가": authors_kb[k],
+                "장르": genres_kb[k],
+                "링크": links_kb[k]
+        })
 
-genrePer_yes24 = books_yes24_df['장르'].value_counts(normalize=True) * 100
-genrePer_kb = books_kb_df['장르'].value_counts(normalize=True) * 100
+    print("Step Stop >>> Data End!!")
+    books_kb_df = pd.DataFrame(bookData_kb)
 
+#yes24 데이터 전처리 코드
+                if links:
+                    genre_yes24 = links[1].get_text(strip=True)
+                    genre_yes24 = genre_yes24.replace("에세이", "소설/시/희곡")
+                    genre_yes24 = genre_yes24.replace("소설/시/희곡", "소설/시/희곡/에세이")
+                    genre_yes24 = genre_yes24.replace("경제 경영", "경제/경영")
+            
 
-# print(set(titles_yes24)-set(titles_kb))
-# print(len(set(titles_yes24)-set(titles_kb)))
-# print(set(titles_kb)-set(titles_yes24))
-# print(len(set(titles_kb)-set(titles_yes24)))
+            bookData_yes24.append({
+                "순위": rank,
+                "제목": title_yes24,
+                "작가": author_yes24,
+                "장르": genre_yes24,
+                "링크": "https://www.yes24.com" + href
+            })
+                    
+            rank += 1
 
-# books_kb_df.to_csv('book_kb_df.csv', index = False, encoding='utf-8-sig')
-# books_yes24_df.to_csv('books_yes24_df.csv', index=False, encoding='utf-8-sig')
-
-books_yes24_df.set_index("순위", inplace=True)
+    books_yes24_df = pd.DataFrame(bookData_yes24)
+    books_yes24_df.set_index("순위", inplace=True)
+    return books_yes24_df
 '''
