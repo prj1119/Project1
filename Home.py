@@ -12,7 +12,7 @@ st.markdown("<h1 style='text-align: center;'>프로젝트 목록</h1>", unsafe_a
 
 st.subheader("1. 가구원수 비교")
 with st.expander("시연 영상 보기"):
-    st.video("./mp4/team5.mp4")
+    st.video("./mp4/team1.mp4")
     st.page_link(page="./pages/1_가구원수 통계.py", label="[그래프 보기]", icon="🔗")
 
 st.subheader("2. 뮤지컬 실시간 통계 차트")
